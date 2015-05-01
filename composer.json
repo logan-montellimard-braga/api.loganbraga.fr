@@ -1,0 +1,23 @@
+{
+  "name": "loganbraga/api.loganbraga.fr",
+  "type": "project",
+  "description": "Logan Braga's personnal website API.",
+  "homepage": "https://github.com/loganbraga/api.loganbraga.fr",
+  "license": "MIT",
+  "authors": [{
+    "name": "Logan Braga",
+    "email": "braga.logan@gmail.com",
+    "homepage": "http://loganbraga.fr"
+  }],
+
+  "require": {
+    "silex/silex": "~1.2",
+    "monolog/monolog": "~1.6",
+    "doctrine/dbal": "2.2.*",
+    "swiftmailer/swiftmailer": "@stable"
+  },
+
+  "autoload": {
+    "psr-0": { "App": "./" }
+  }
+}
