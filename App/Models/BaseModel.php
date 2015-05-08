@@ -24,6 +24,7 @@ class BaseModel
             ->setMaxResults(20);
 
         $results = $this->db->fetchAll($query);
+        $this->db->close();
         return $results;
     }
 
@@ -36,6 +37,7 @@ class BaseModel
             ->from($this->tableName, '')
             ->where("id = $id");
         $result = $this->db->fetchAssoc($query);
+        $this->db->close();
 
         return $result;
     }
@@ -54,6 +56,7 @@ class BaseModel
             return array('missing' => $missing);
 
         $number = $this->db->insert($this->tableName, $prs);
+        $this->db->close();
 
         return $number;
     }
@@ -63,6 +66,7 @@ class BaseModel
         $prs = array_intersect_key($params, $this->getAllowedParams());
         $prs['modified_at'] = date("Y-m-d H:i:s");
         $number = $this->db->update($this->tableName, $prs, array('id' => $id));
+        $this->db->close();
 
         return $number;
     }
@@ -70,6 +74,7 @@ class BaseModel
     public function delete($id)
     {
         $number = $this->db->delete($this->tableName, array('id' => $id));
+        $this->db->close();
 
         return $number;
     }
