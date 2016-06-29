@@ -25,7 +25,6 @@ class AlertModel extends BaseModel
             unset($alerts[$key]['created_at']);
             unset($alerts[$key]['start_display']);
             unset($alerts[$key]['end_display']);
-            unset($alerts[$key]['id']);
         }
 
         return $alerts;
