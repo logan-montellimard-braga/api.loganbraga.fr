@@ -6,6 +6,7 @@ $app ->get('/works/{id}',     $app['util.getController']('works::read'));
 $app ->get('/experiences',    $app['util.getController']('experiences::index'));
 $app ->get('/qualifications', $app['util.getController']('qualifications::index'));
 $app ->get('/skills',         $app['util.getController']('skills::index'));
+$app ->get('/skills/{id}',    $app['util.getController']('skills::show'));
 $app ->post('/messages',      $app['util.getController']('messages::create'));
 
 /* $app->post('/works',                $app['util.getController']('works::create')) */
