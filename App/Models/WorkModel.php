@@ -5,9 +5,11 @@ use App\Models\BaseModel;
 
 class WorkModel extends BaseModel
 {
+    protected $app;
     public function __construct(\Silex\Application $app)
     {
         parent::__construct($app, 'work');
+        $this->app = $app;
     }
 
     public function findAll()
@@ -17,6 +19,8 @@ class WorkModel extends BaseModel
         foreach($works as $key => $val) {
             $works[$key]['skills'] = self::getAllSkillsFromWork($val['id']);
             $works[$key]['status'] = self::getStatusInfos($val['id_status']);
+            $works[$key]['prev_id'] = self::getPreviousID($val['created_at']);
+            $works[$key]['next_id'] = self::getNextID($val['created_at']);
 
             unset($works[$key]['id_status']);
         }
@@ -30,10 +34,44 @@ class WorkModel extends BaseModel
         if ($work) {
             $work['skills'] = self::getAllSkillsFromWork($work['id']);
             $work['status'] = self::getStatusInfos($work['id_status']);
+            $work['prev_id'] = self::getPreviousID($work['created_at']);
+            $work['next_id'] = self::getNextID($work['created_at']);
             unset($work['id_status']);
         }
 
         return $work;
+    }
+
+    private function getPreviousID($date)
+    {
+        $query =
+            $this->db
+            ->createQueryBuilder()
+            ->select($this->app['db.prefix'] . 'work.id')
+            ->from($this->app['db.prefix'] . 'work', '')
+            ->where('id_status = 1')
+            ->andWhere($this->app['db.prefix'] . 'work.created_at < "' . $date . '"')
+            ->orderBy('created_at', 'DESC')
+            ->setMaxResults(1);
+        $id = $this->db->fetchAll($query);
+        if (count($id)) return $id[0]['id'];
+        return null;
+    }
+
+    private function getNextID($date)
+    {
+        $query =
+            $this->db
+            ->createQueryBuilder()
+            ->select($this->app['db.prefix'] . 'work.id')
+            ->from($this->app['db.prefix'] . 'work', '')
+            ->where('id_status = 1')
+            ->andWhere($this->app['db.prefix'] . 'work.created_at > "' . $date . '"')
+            ->orderBy('created_at')
+            ->setMaxResults(1);
+        $id = $this->db->fetchAll($query);
+        if (count($id)) return $id[0]['id'];
+        return null;
     }
 
     private function getAllSkillsFromWork($work_id)
@@ -41,10 +79,10 @@ class WorkModel extends BaseModel
         $query =
             $this->db
             ->createQueryBuilder()
-            ->select('skill.*')
-            ->from('skill, works_skills', '')
-            ->where('works_skills.id_skill = skill.id')
-            ->andWhere("works_skills.id_work = $work_id")
+            ->select($this->app['db.prefix'] . 'skill.*')
+            ->from($this->app['db.prefix'] . 'skill, ' . $this->app['db.prefix'] . 'works_skills', '')
+            ->where($this->app['db.prefix'] . 'works_skills.id_skill = ' . $this->app['db.prefix'] . 'skill.id')
+            ->andWhere($this->app['db.prefix'] . "works_skills.id_work = $work_id")
             ->setMaxResults(10);
         $skills = $this->db->fetchAll($query);
         foreach ($skills as $key => $val) {
@@ -60,7 +98,7 @@ class WorkModel extends BaseModel
             $this->db
             ->createQueryBuilder()
             ->select('*')
-            ->from('status', '')
+            ->from($this->app['db.prefix'] . 'status', '')
             ->where("id = $id_status")
             ->setMaxResults(1);
         return $this->db->fetchAll($query)[0];
